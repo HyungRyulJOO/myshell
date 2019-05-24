@@ -25,29 +25,17 @@ int main(void)      //gcc -o 파일이름 파일이름.c 형식으로 컴파일 
     while (true) {
         char *s, *sss;
         int len;
-        char *order = "exit";
 
         memset(hostname, 0x00, sizeof(hostname));
-        gethostname(hostname, LEN_HOSTNAME);
-        printf("%s@%s (toy_shell) $ ", getpwuid(getuid())->pw_name, hostname);
+        gethostname(hostname, LEN_HOSTNAME); //
+        printf("%s@%s (toy_shell) $ ", getpwuid(getuid())->pw_name, hostname);  //username과 hostname 출력
 
         s = fgets(command, MAX_LEN_LINE, stdin);  //stream에서 문자열을 받는다 
-        printf("\n%s\n\n", s);
-        /*
-        if(!strcmp(s,"exit")) {
-            printf("exit");
-            break;
-        }
-        */
-        //printf("%s\n\n", order);
-
-        //int check = strcmp(s, order);
-        //printf("\n%d\n\n", check);
         
-        if ( strcmp(s, "exit\n") == 0 )
+        if ( strcmp(s, "exit\n") == 0 ) //Enter 값도 입력으로 받는 것으로 문자열 비교
         {
-            printf("%s\n\n", s);
-            exit(1);
+            printf("%s", s);
+            exit(1);                    //스트림에 exit입력시 종료
         }
         
         else {
@@ -62,17 +50,13 @@ int main(void)      //gcc -o 파일이름 파일이름.c 형식으로 컴파일 
             if (command[len - 1] == '\n') {
                 command[len - 1] = '\0';
             }
-            printf("[%s]\n", command);  //입력한 command문자 출력
 
-            
-
-            sss = strtok(s, ";"); //s를 ;를 기준으로 자름
+            sss = strtok(s, ";"); //스트림으로 받은 문자열 s를 ;를 기준으로 자름
             int count = 0;
             int n =0;
             while(sss != NULL)    //자른 sss를 array에 보관
             {
                 array[count] = sss;
-                printf("array[%d] = [%s]\n",count, array[count]);
                 count ++;
                 n++;
                 sss = strtok(NULL, ";");
@@ -80,18 +64,15 @@ int main(void)      //gcc -o 파일이름 파일이름.c 형식으로 컴파일 
 
             for (int countN = 0 ; countN < n ; countN++ )   //array에 담긴 갯수만큼 fork반복
             {
-    ////////////////////////////////////////////////////////////////////////
                 pid = fork();     //복사본의 프로세스 생성
-                /////////////
+        
                 if (pid < 0) {
                     fprintf(stderr, "fork failed\n");
                     exit(1);
                 }
-    //////////////////////////////////////////////////////////////////////
 
                 if (pid != 0) {  /* parent */
                     cpid = waitpid(pid, &status, 0);  //자식 프로세스의 종료를 기다린다
-                    
                     
                     if (cpid != pid) {
                         fprintf(stderr, "waitpid failed\n");
@@ -99,30 +80,12 @@ int main(void)      //gcc -o 파일이름 파일이름.c 형식으로 컴파일 
 
                     printf("Child process terminated\n"); ///cpid == pid 이면
 
-
                     if (WIFEXITED(status)) {   //자식 프로세스의 종료 상태를 확인 
                             printf("Exit status is %d\n\n", WEXITSTATUS(status));
                     }         ///성공 0 실패 1
-
-
             }
 
                 else {  /* child pid == 0 */
-
-        ////////////////////////////////////////////////////////////////////////
-                    /*
-                    sss = strtok(s, ";");
-                    int count = 0;
-                    while(sss != NULL)
-                    {
-                        array[count] = sss;
-                        printf("array[%d] = [%s]\n",count, array[count]);
-                        count ++;
-                        sss = strtok(NULL, ";");
-                    }
-                    */
-        ///////////////////////////////////////////////////////////////////
-                    printf("array[%d] = [%s]\n",countN, array[countN]);
                     ret = execve(array[countN], &array[countN], NULL);  //여러개의 문자열이 담긴 array에 해당하는 주소의 파일 실행
 
                     if (ret < 0) {
@@ -132,8 +95,6 @@ int main(void)      //gcc -o 파일이름 파일이름.c 형식으로 컴파일 
                 } 
             }           
         }
-
-
     }   
     return 0;
 }       
